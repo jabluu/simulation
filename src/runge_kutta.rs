@@ -1,5 +1,5 @@
 
-use crate::Vec;
+use crate::Vector;
 
 //  c1 | a11 a12  .. a1S
 //  c2 | a21 a22  .. a2S
@@ -57,36 +57,36 @@ impl ButcherTableau<4> {
 }
 
 #[derive(Debug)]
-pub struct RungeKutta<const N: usize, const S: usize> {
+pub struct RungeKutta<const S: usize, const N: usize> {
     tableau: ButcherTableau<S>,
-    k_table: [Vec<N>; S],
+    k_table: [Vector<N>; S],
 }
 
-impl<const N: usize> RungeKutta<N, 4> {
+impl<const N: usize> RungeKutta<4, N> {
     pub fn explicit4() -> Self {
         RungeKutta {
-            k_table: [Vec::zeros(); 4],
+            k_table: [Vector::zeros(); 4],
             tableau: ButcherTableau::explicit4(),
         }
     }
 
     pub fn explicit38() -> Self {
         RungeKutta {
-            k_table: [Vec::zeros(); 4],
+            k_table: [Vector::zeros(); 4],
             tableau: ButcherTableau::explicit38(),
         }
     }
 }
 
 
-impl<const N: usize, const S: usize> RungeKutta<N, S> {
+impl<const S: usize, const N: usize> RungeKutta<S, N> {
     pub fn integrate(
         &self,
         t: f64,
         h: f64,
-        y: &Vec<N>,
-        f: &dyn Fn(f64, Vec<N>) -> Vec<N>,
-    ) -> Vec<N> {
+        y: &Vector<N>,
+        f: &dyn Fn(f64, Vector<N>) -> Vector<N>,
+    ) -> Vector<N> {
         let RungeKutta {
             tableau: ButcherTableau {
                 a_table,
@@ -98,10 +98,10 @@ impl<const N: usize, const S: usize> RungeKutta<N, S> {
             ..
         } = self;
 
-        let mut sum_b_k = Vec::zeros();
+        let mut sum_b_k = Vector::zeros();
 
         for stage_num in 0..S {
-            let mut sum_a_k = Vec::zeros();
+            let mut sum_a_k = Vector::zeros();
 
             for idx in 0..stage_num {
                 sum_a_k += a_table[stage_num][idx] * k_table[idx];
@@ -117,4 +117,6 @@ impl<const N: usize, const S: usize> RungeKutta<N, S> {
 
         y + h * sum_b_k
     }
+
+
 }
